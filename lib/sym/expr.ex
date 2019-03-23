@@ -1,6 +1,22 @@
+#
+#   Copyright 2019 OpenQL Project developers.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+
 defmodule Expr do
   @moduledoc """
-  A math-expression parser, evaluator and formatter for Elixir.
+  A math expression parser, evaluator and formatter.
 
   ### Supported operators
 
@@ -83,7 +99,7 @@ defmodule Expr do
   end
 
   def eval(expr, scope) do
-    Expr.Tree.reduce(expr, &Expr.Eval.eval(&1, scope))
+    Expr.Eval.reduce_for_tree(expr, &Expr.Eval.eval(&1, scope))
   end
 
   @doc """
@@ -109,10 +125,11 @@ defmodule Expr do
     end
   end
 
-  @spec parse(expr :: String.t | charlist) :: {:ok, expr::tuple} | {:error, error::map}
   @doc """
   Parses the given `expr` to a syntax tree.
   """
+  @spec parse(expr :: String.t | charlist) :: {:ok, expr::tuple} | {:error, error::map}
+
   def parse(expr) do
     with {:ok, tokens} <- lex(expr) do
       :math_term_parser.parse(tokens)
@@ -125,7 +142,7 @@ defmodule Expr do
   @doc """
   """
   def variables(expr) do
-    Expr.Tree.reduce(expr, fn
+    Expr.Eval.reduce_for_tree(expr, fn
       {:access, variables} ->
         res = Enum.map(variables, fn
           {:variable, var} -> var
@@ -522,7 +539,7 @@ defmodule Expr.Eval do
   end
 
   defp eval({:access, [{:index, index} | rest]}, scope, root) do
-    {:ok, index} = Expr.Tree.reduce(index, &eval(&1, root))
+    {:ok, index} = reduce_for_tree(index, &eval(&1, root))
     case Enum.at(scope, index, nil) do
       nil -> {:error, :einkey}
       value ->
@@ -535,22 +552,17 @@ defmodule Expr.Eval do
   defp equals(str, atom) when is_binary(str) and is_atom(atom), do: str == Atom.to_string(atom)
   defp equals(atom, str) when is_binary(str) and is_atom(atom), do: str == Atom.to_string(atom)
   defp equals(a, b), do: a == b
-end
-
-defmodule Expr.Tree do
-  @moduledoc """
-  """
 
   @doc """
-  Works like Enum.reduce, but for trees
+  reduce for tree like Enum.reduce
   """
-  @spec reduce(expr::term, fun::function) :: term
+  @spec reduce_for_tree(expr::term, fun::function) :: term
 
-  def reduce({:function, name, args}, fun) do
+  def reduce_for_tree({:function, name, args}, fun) do
     # reduce all arguments
     args
     |> Enum.reduce(%{ok: [], error: []}, fn arg, %{ok: oks, error: errors} ->
-      case reduce(arg, fun) do
+      case reduce_for_tree(arg, fun) do
         {:ok, res} ->
           %{ok: [res | oks], error: errors}
         {:error, res} ->
@@ -564,32 +576,32 @@ defmodule Expr.Tree do
     end
   end
 
-  def reduce({operator, a, b, c}, fun) do
-    with {:ok, a} <- reduce(a, fun),
-         {:ok, b} <- reduce(b, fun),
-         {:ok, c} <- reduce(c, fun) do
+  def reduce_for_tree({operator, a, b, c}, fun) do
+    with {:ok, a} <- reduce_for_tree(a, fun),
+         {:ok, b} <- reduce_for_tree(b, fun),
+         {:ok, c} <- reduce_for_tree(c, fun) do
       fun.({operator, a, b, c})
     end
   end
 
-  def reduce({operator, a, b}, fun) do
-    with {:ok, a} <- reduce(a, fun),
-         {:ok, b} <- reduce(b, fun) do
+  def reduce_for_tree({operator, a, b}, fun) do
+    with {:ok, a} <- reduce_for_tree(a, fun),
+         {:ok, b} <- reduce_for_tree(b, fun) do
       fun.({operator, a, b})
     end
   end
 
-  def reduce({:access, _} = expr, fun) do
+  def reduce_for_tree({:access, _} = expr, fun) do
     fun.(expr)
   end
 
-  def reduce({operator, a}, fun) do
-    with {:ok, a} <- reduce(a, fun) do
+  def reduce_for_tree({operator, a}, fun) do
+    with {:ok, a} <- reduce_for_tree(a, fun) do
       fun.({operator, a})
     end
   end
 
-  def reduce(other, fun) when is_number(other) or other in [nil, true, false] or is_binary(other) do
+  def reduce_for_tree(other, fun) when is_number(other) or other in [nil, true, false] or is_binary(other) do
     fun.(other)
   end
 end

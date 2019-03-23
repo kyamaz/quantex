@@ -29,7 +29,7 @@ STRING = "([^\\"]+|\\"|\\)*"
 Rules.
 % reserved words appear up here so they're not eaten by {WORD}
 not : {token, {'not', TokenLine}}.
-null : {token, {nil, TokenLine}}.
+nil : {token, {nil, TokenLine}}.
 false : {token, {false, TokenLine}}.
 true : {token, {true, TokenLine}}.
 

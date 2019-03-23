@@ -15,5 +15,8 @@
 #   limitations under the License.
 #
 
-ExUnit.start()
-
+defmodule QuantumQopTest do
+  use ExUnit.Case
+  use PowerAssert
+  doctest Quantum.Qop
+end
