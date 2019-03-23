@@ -1,3 +1,4 @@
+#
 #   Copyright 2018-2019 piacere.
 #   Copyright 2019 OpenQL Project developers.
 #
@@ -12,28 +13,26 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+#
 
 defmodule Quantum do
   @moduledoc """
   Quantum library namespace.
   """
   @zary [
-    x:  :x,
-    q0: :q0,
-    q1: :q1
   ]
 
   @unary [
-    abs: :abs
+    abs: :abs,
+    qubit: :qubit
   ]
 
   @binary [
     +: :+,
     -: :-,
     *: :*,
-    div: :div,
     /: :/,
-    # ==: :equal?
+    div: :div
   ]
   
   @doc false
@@ -59,20 +58,24 @@ defmodule Quantum do
   end
 
   Enum.each @zary, fn({op, name}) ->
+    @doc false
     def unquote(op)() do
       Quantum.Qop.unquote(name)()
     end
   end
 
   Enum.each @unary, fn({op, name}) ->
+    @doc false
     def unquote(op)(a) do
       Quantum.Qop.unquote(name)(a)
     end
   end
 
   Enum.each @binary, fn({op, name}) ->
+    @doc false
     def unquote(op)(a, b) do
       Quantum.Qop.unquote(name)(a, b)
     end
   end
+
 end

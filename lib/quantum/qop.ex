@@ -40,10 +40,12 @@ defmodule Quantum.Qop do
   use Quantum.Complex
   use Quantum.Qubit
   use Quantum.Unitary
+  use Quantum.Tensor
 
   alias Complex, as: C
   alias Qubit, as: Q
   alias Unitary, as: U
+  alias Tensor, as: T
 
   @doc """
 
@@ -180,29 +182,16 @@ defmodule Quantum.Qop do
   end
 
   @doc """
-  |0> qubit ... ( 1, 0 )
-
-  ## Examples
-
-    iex> Quantum.Qop.q0.n
-    1
-
+  create pure state qubit
   """
-  @spec q0 :: Q.qubit
-  def q0(), do: Q.new([C.new(1), C.new(0)])
+  @spec pure(list) :: Q.qubit
+  @spec pure(integer, T.tensor) :: Q.qubit
+  defdelegate pure(list), to: Q
+  defdelegate pure(num, state), to: Q
 
-  @doc """
-  |1> qubit ... ( 0, 1 )
+  def qubit(list), do: pure(list)
+  def qubit(num, state), do: pure(num, state)
 
-  ## Examples
-
-    iex> Quantum.Qop.q1.n
-    1
-
-  """
-  @spec q1 :: Q.qubit
-  def q1(), do: Q.new([C.new(0), C.new(1)])
- 
   @doc """
   X gate.
  
@@ -214,68 +203,71 @@ defmodule Quantum.Qop do
     [2, 2]
 
   """
-  def x(), do: U.new([C.new(0), C.new(1), C.new(1), C.new(0)])
-  def x( n, qubit ), do: nil
+  @spec x(integer, Q.qubit) :: U.unitary
+  @spec x(integer) :: U.unitary
+  @spec x() :: U.unitary
+  def x(n, qubit), do: nil
+  def x(n), do: &x(n, &1)
+  def x, do: U.new([C.new(0), C.new(1), C.new(1), C.new(0)])
 
-# @doc """
-# for X gate 2x2 matrix ... ( ( 0, 1 ), ( 1, 0 ) )
-# """
-# def xx(), do: Numexy.new [ [ 0, 1 ], [ 1, 0 ] ]
-#
-# @doc """
-# Z gate.
-#
-# ## Examples
-#   iex> Q.z( Q.q0() )
-#   Q.q0()
-#   iex> Q.z( Q.q1() )
-#   -1 |> Numexy.mul( Q.q1() )
-#   iex> Q.z( Numexy.new [ 0, 0, 0, 1 ] )
-#   Q.tensordot( Q.q1(), -1 |> Numexy.mul( Q.q1() ), 0 )
-#   iex> Q.z( Numexy.new [ 0, 0, 0, 1 ] )
-#   Numexy.new [ 0, 0, 0, -1 ]
-# """
-# def z( %Array{ array: _list, shape: { 2, nil } } = qubit ), do: Numexy.dot( z2x(), qubit )
-# def z( %Array{ array: _list, shape: { 4, nil } } = qubit ), do: Numexy.dot( z4x(), qubit )
-# @doc """
-# for Z gate 2x2 matrix ... ( ( 0, 1 ), ( 1, 0 ) )
-# """
-# def z2x() do
-#   Numexy.new [ 
-#     [ 1, 0 ], 
-#     [ 0, -1 ]
-#   ]
-#   end
-# @doc """
-# for Z gate 4x4 matrix ... ( ( 1, 0, 0, 0 ), ( 0, 1, 0, 0 ), ( 0, 0, 1, 0 ), ( 0, 0, 0, -1 ) )
-# """
-# def z4x() do
-#  Numexy.new [ 
-#   [ 1, 0, 0,  0 ], 
-#   [ 0, 1, 0,  0 ], 
-#   [ 0, 0, 1,  0 ], 
-#   [ 0, 0, 0, -1 ], 
-# ]
-# end
-#
-# @doc """
-# Hadamard gate.
-#
-# ## Examples
-#   iex> Q.h( Q.q0() )
-#   Numexy.add( Q.n07() |> Numexy.mul( Q.q0() ), Q.n07() |> Numexy.mul( Q.q1() ) )
-#   iex> Q.h( Q.q0() )
-#   Numexy.new [ Q.n07(),  Q.n07() ]
-#   iex> Q.h( Q.q1() )
-#   Numexy.sub( Q.n07() |> Numexy.mul( Q.q0() ), Q.n07() |> Numexy.mul( Q.q1() ) )
-#   iex> Q.h( Q.q1() )
-#   Numexy.new [ Q.n07(), -Q.n07() ]
-# """
-# def h( qubit ), do: Numexy.mul( hx(), 1 / Math.sqrt( 2 ) ) |> Numexy.dot( qubit ) |> to_bit
-# @doc """
-# for Hadamard gate matrix ... ( ( 1, 1 ), ( 1, -1 ) )
-# """
-# def hx(), do: Numexy.new [ [ 1, 1 ], [ 1, -1 ] ]
+  @doc """
+  Y gate.
+ 
+  ## Examples
+
+    iex> Quantum.Qop.y.n
+    1
+    iex> Quantum.Qop.y.shape
+    [2, 2]
+
+  """
+  @spec y(integer, Q.qubit) :: U.unitary
+  @spec y(integer) :: U.unitary
+  @spec y() :: U.unitary
+  def y(n, qubit), do: nil
+  def y(n), do: &y(n, &1)
+  def y, do: U.new([C.new(0), C.new(0,-1), C.new(0,1), C.new(0)])
+
+  @doc """
+  Z gate.
+ 
+  ## Examples
+
+    iex> Quantum.Qop.z.n
+    1
+    iex> Quantum.Qop.z.shape
+    [2, 2]
+
+  """
+  @spec z(integer, Q.qubit) :: U.unitary
+  @spec z(integer) :: U.unitary
+  @spec z() :: U.unitary
+  def z(n, qubit), do: nil
+  def z(n), do: &z(n, &1)
+  def z, do: U.new([C.new(1), C.new(0), C.new(0), C.new(-1)])
+
+  defp r1_2, do:  Complex.div(1, :math.sqrt(2))
+
+  @doc """
+  H(Hadamard) gate.
+ 
+  ## Examples
+
+    iex> Quantum.Qop.h.n
+    1
+    iex> Quantum.Qop.h.shape
+    [2, 2]
+
+  """
+  @spec h(integer, Q.qubit) :: U.unitary
+  @spec h(integer) :: U.unitary
+  @spec h() :: U.unitary
+  def h(n, qubit), do: nil
+  def h(n), do: &h(n, &1)
+  def h, do: U.new([C.new(r1_2()), C.new(r1_2()), C.new(r1_2()), C.new(-1*r1_2())])
+
+
+
 #
 # @doc """
 # Controlled NOT gate.
