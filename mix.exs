@@ -28,11 +28,10 @@ defmodule Quantex.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      { :ex_doc,         "~> 0.18.1", only: :dev, runtime: false }, 
+      { :ex_doc,         "~> 0.19.3", only: :dev, runtime: false }, 
       { :power_assert,   "~> 0.1.1",  only: :test }, 
       { :mix_test_watch, "~> 0.5",    only: :dev, runtime: false }, 
-      { :earmark,        "~> 1.2.4" }, 
-      { :numexy,         "~> 0.1.0" }, 
+      { :earmark,        "~> 1.3",    override: true }, 
       { :math,           "~> 0.3.0" }, 
     ]
   end
