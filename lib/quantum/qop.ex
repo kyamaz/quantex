@@ -17,7 +17,6 @@
 
 defmodule Quantum.Operator do
   @moduledoc """
-  Documentation for Quantum ( Elixir Quantum module ).
   """
   @doc false
   defmacro __using__(_opts) do
@@ -34,8 +33,9 @@ defmodule Quantum.Qop do
 
   require Math
 
-  import Kernel, except: [+: 2, -: 2, *: 2]
-  import Kernel, except: [if: 2, unless: 2]
+  import Kernel, except: [+: 2, -: 2, *: 2,
+                          if: 2, unless: 2
+                          ]
 
   use Quantum.Complex
   use Quantum.Qubit

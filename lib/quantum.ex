@@ -17,29 +17,29 @@
 
 defmodule Quantum do
   @moduledoc """
+  Documentation for Quantum ( Elixir Quantum module ).
   Quantum library namespace.
   """
-  @zary [
-  ]
 
   @unary [
     abs: :abs,
     qubit: :qubit
   ]
 
+
   @binary [
     +: :+,
     -: :-,
     *: :*,
     /: :/,
+    if: :if,
+    unless: :unless,
     div: :div
   ]
   
   @doc false
   defmacro __using__(_opts) do
-    ops = Enum.map(@zary, fn({op, _}) -> {op, 0} end)
-          ++
-          Enum.map(@unary, fn({op, _}) -> {op, 1} end)
+    ops = Enum.map(@unary, fn({op, _}) -> {op, 1} end)
           ++
           Enum.map(@binary, fn({op, _}) -> {op, 2} end)
 
@@ -51,16 +51,10 @@ defmodule Quantum do
       use Quantum.Circuit
       use Quantum.Operator
       import Quantum.Qop, only: unquote(ops)
+
       alias Complex, as: C
       alias Qubit, as: Q
       alias Unitary, as: U
-    end
-  end
-
-  Enum.each @zary, fn({op, name}) ->
-    @doc false
-    def unquote(op)() do
-      Quantum.Qop.unquote(name)()
     end
   end
 
