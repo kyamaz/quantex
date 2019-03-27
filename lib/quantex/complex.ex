@@ -14,10 +14,10 @@
 #   limitations under the License.
 #
 
-defmodule Quantum.Complex do
+defmodule QuantEx.Complex do
   @moduledoc """
   Tensor library namespace.
-  use `use Quantum.Complex` to alias `Complex`.
+  use `use QuantEx.Complex` to alias `Complex`.
   """
   @doc false
   defmacro __using__(_opts) do
@@ -36,8 +36,8 @@ defmodule Complex do
 
   defstruct re: 0.0, im: 0.0
 
-  @type t(real, imag) :: %Complex{re: real, im: imag}
-  @type t :: %Complex{re: number, im: number}
+  @typep t(real, imag) :: %Complex{re: real, im: imag}
+  @typep t :: %Complex{re: number, im: number}
 
   @opaque complex :: %Complex{}
   @type real_complex :: t | number
@@ -47,6 +47,9 @@ defmodule Complex do
       "(#{complex.re})+(#{complex.im})i"
     end
   end
+
+  @spec is_complex(term) :: boolean
+  def is_complex(%Complex{}), do: true
 
   @spec new(number, number) :: complex
   def new(real \\ 0.0, imag \\ 0.0), do: %Complex{re: real, im: imag}

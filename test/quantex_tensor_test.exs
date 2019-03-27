@@ -14,8 +14,8 @@
 #   limitations under the License.
 #
 
-defmodule SymExprTest do
+defmodule QuantExTensorTest do
   use ExUnit.Case
   use PowerAssert
-  doctest Expr
+  doctest QuantEx.Tensor
 end

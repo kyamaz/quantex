@@ -14,34 +14,34 @@
 #   limitations under the License.
 #
 
-defmodule Quantum.Circuit do
+defmodule QuantEx.Circuit do
   @moduledoc """
   Tensor library namespace.
-  use `use Quantum.Qit` to alias `Qit`.
+  use `use QuantEx.Qit` to alias `Qit`.
   """
   @doc false
   defmacro __using__(_opts) do
     quote do
-      alias Quantum.Qit
+      alias QuantEx.Qit
     end
   end
 end
 
-defmodule Quantum.Qit do
+defmodule QuantEx.Qit do
   @moduledoc """
   """
 
-  use Quantum.Unitary
+  use QuantEx.Unitary
 
-  # alias Quantum.Unitary, as: U
-  alias Quantum.Qit
+  # alias QuantEx.Unitary, as: U
+  alias QuantEx.Qit
 
   defstruct n: 0, gates: []
 
-  @type t(num, gate_list) :: %Qit{n: num, gates: gate_list}
-  @type t :: %Qit{n: integer, gates: list}
+  @typep t(num, gate_list) :: %Qit{n: num, gates: gate_list}
+  @typep t :: %Qit{n: integer, gates: list}
 
-  @opaque cirqit :: %Qit{}
+  @opaque circuit :: %Qit{}
 
   defimpl Inspect, for: Qit do
     def inspect(q, _opts) do
@@ -49,9 +49,12 @@ defmodule Quantum.Qit do
     end
   end
 
-  @spec new(integer, list) :: cirqit
+  @spec new(integer, list) :: circuit
   def new(nn, list) when is_number(nn) and is_list(list) do
     %Qit{n: nn, gates: list}
   end
+
+  @spec is_circuit(term) :: boolean
+  def is_circuit(%Qit{}), do: true
 
 end

@@ -15,10 +15,10 @@
 #   limitations under the License.
 #
 
-defmodule Quantum do
+defmodule QuantEx do
   @moduledoc """
-  Documentation for Quantum ( Elixir Quantum module ).
-  Quantum library namespace.
+  Documentation for QuantEx ( Elixir Quantum Computing module ).
+  QuantEx library namespace.
   """
 
   @unary [
@@ -45,12 +45,12 @@ defmodule Quantum do
 
     quote do
       import Kernel, except: unquote(ops)
-      use Quantum.Complex
-      use Quantum.Qubit
-      use Quantum.Unitary
-      use Quantum.Circuit
-      use Quantum.Operator
-      import Quantum.Qop, only: unquote(ops)
+      use QuantEx.Complex
+      use QuantEx.Qubit
+      use QuantEx.Unitary
+      use QuantEx.Circuit
+      use QuantEx.Operator
+      import QuantEx.Qop, only: unquote(ops)
 
       alias Complex, as: C
       alias Qubit, as: Q
@@ -61,14 +61,15 @@ defmodule Quantum do
   Enum.each @unary, fn({op, name}) ->
     @doc false
     def unquote(op)(a) do
-      Quantum.Qop.unquote(name)(a)
+      QuantEx.Qop.unquote(name)(a)
     end
   end
 
-  Enum.each @binary, fn({op, name}) ->
+  macros = [if: :if, unless: :unless]
+  Enum.each @binary -- macros, fn({op, name}) ->
     @doc false
     def unquote(op)(a, b) do
-      Quantum.Qop.unquote(name)(a, b)
+      QuantEx.Qop.unquote(name)(a, b)
     end
   end
 

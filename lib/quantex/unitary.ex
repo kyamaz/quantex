@@ -14,10 +14,10 @@
 #   limitations under the License.
 #
 
-defmodule Quantum.Unitary do
+defmodule QuantEx.Unitary do
   @moduledoc """
   Tensor library namespace.
-  use `use Quantum.Unitary` to alias `Unitary`.
+  use `use QuantEx.Unitary` to alias `Unitary`.
   """
   @doc false
   defmacro __using__(_opts) do
@@ -33,8 +33,8 @@ defmodule Tensor.Unitary do
   alias Tensor.{Tensor, TBase, Unitary}
   use TBase, [n: 0, t: [] ]
 
-  @type t(shape, list, num, target) :: %Unitary{n: num, t: target, shape: shape, to_list: list}
-  @type t :: %Unitary{n: integer, t: [integer], to_list: list, shape: list}
+  @typep t(shape, list, num, target) :: %Unitary{n: num, t: target, shape: shape, to_list: list}
+  @typep t :: %Unitary{n: integer, t: [integer], to_list: list, shape: list}
 
   @opaque unitary :: %Unitary{}
 
@@ -45,12 +45,24 @@ defmodule Tensor.Unitary do
     end
   end
 
-  @spec new(list) :: unitary
-  def new(list) when is_list(list) do
+  @spec new(integer, list) :: unitary
+  def new(target, list) when is_list(list) and is_integer(target) do
     flist = list |> List.flatten
     l = round(:math.sqrt(Kernel.length(flist)))
     nn = round(:math.log2(l))
-    %Unitary{to_list: flist, shape: [l, l], n: nn, t: [] }
+    case target do
+      nil -> 
+        %Unitary{to_list: flist, shape: [l, l], n: nn, t: [] }
+      _ ->
+        %Unitary{to_list: flist, shape: [l, l], n: nn, t: [target] }
+    end
+  end
+
+  @spec new(integer) :: unitary
+  def new(target) when is_integer(target), do: &new(target, &1)    # for curry
+
+  @spec new(list) :: unitary
+  def new(list) when is_list(list) do
   end
 
 end

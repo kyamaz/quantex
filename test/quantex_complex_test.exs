@@ -14,8 +14,8 @@
 #   limitations under the License.
 #
 
-defmodule QuantumComplexTest do
+defmodule QuantExComplexTest do
   use ExUnit.Case
   use PowerAssert
-  doctest Quantum.Complex
+  doctest QuantEx.Complex
 end

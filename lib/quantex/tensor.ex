@@ -14,10 +14,10 @@
 #   limitations under the License.
 #
 
-defmodule Quantum.Tensor do
+defmodule QuantEx.Tensor do
   @moduledoc """
   Tensor library namespace.
-  use `use Quantum.Tensor` to alias `Tensor`.
+  use `use QuantEx.Tensor` to alias `Tensor`.
   """
   @doc false
   defmacro __using__(_opts) do
@@ -41,8 +41,8 @@ defmodule Tensor.Tensor do
   alias Tensor.{Tensor, TBase}
   use TBase
 
-  @type t(list, shape) :: %Tensor{to_list: list, shape: shape}
-  @type t :: %Tensor{to_list: list, shape: list}
+  @typep t(list, shape) :: %Tensor{to_list: list, shape: shape}
+  @typep t :: %Tensor{to_list: list, shape: list}
 
   @opaque tensor :: %Tensor{}
 
@@ -59,12 +59,24 @@ defmodule Tensor.Tensor do
     %Tensor{to_list: lists, shape: shape}
   end
 
+  @spec tensor?(tensor) :: boolean
+  def tensor?(%Tensor{}), do: true
+
+  @spec is_tensor(term) :: boolean
+  def is_tensor(t), do: tensor?(t)
+
   @spec vector?(tensor) :: boolean
   def vector?(%Tensor{shape: [_]}), do: true
   def vector?(%Tensor{}), do: false
 
+  @spec is_vector(term) :: boolean
+  def is_vector(t), do: vector?(t)
+
   @spec matrix?(tensor) :: boolean
   def matrix?(%Tensor{shape: [_,_]}), do: true
   def matrix?(%Tensor{}), do: false
+
+  @spec is_matrix(term) :: boolean
+  def is_matrix(t), do: matrix?(t)
 
 end

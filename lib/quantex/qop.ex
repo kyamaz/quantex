@@ -15,19 +15,19 @@
 #   limitations under the License.
 #
 
-defmodule Quantum.Operator do
+defmodule QuantEx.Operator do
   @moduledoc """
   """
   @doc false
   defmacro __using__(_opts) do
     quote do
-      alias Quantum.Qop
+      alias QuantEx.Qop
     end
   end
 
 end
 
-defmodule Quantum.Qop do
+defmodule QuantEx.Qop do
   @moduledoc """
   """
 
@@ -37,27 +37,36 @@ defmodule Quantum.Qop do
                           if: 2, unless: 2
                           ]
 
-  use Quantum.Complex
-  use Quantum.Qubit
-  use Quantum.Unitary
-  use Quantum.Tensor
+  use QuantEx.Complex
+  use QuantEx.Qubit
+  use QuantEx.Unitary
+  use QuantEx.Tensor
+  use QuantEx.Circuit
 
   alias Complex, as: C
   alias Qubit, as: Q
   alias Unitary, as: U
   alias Tensor, as: T
 
+  ### for guard
+
+  defguard is_unitary(value) when value === %Unitary{}
+
+  @doc guard: true
+  @spec unitary?(term) :: boolean
+  def unitary?(%Unitary{}), do: true
+  def unitary?(_), do: false
+
   @doc """
 
   ## Examples
 
     iex> import Kernel, except: [+: 2]
-    iex> import Quantum.Qop
+    iex> import QuantEx.Qop
     iex> 1 + 2
     3
 
   """
-  @doc guard: true
   @spec C.real_complex + C.real_complex :: C.real_complex
   def left + right, do: C.add(left, right)
 
@@ -66,12 +75,11 @@ defmodule Quantum.Qop do
   ## Examples
 
     iex> import Kernel, except: [-: 2]
-    iex> import Quantum.Qop
+    iex> import QuantEx.Qop
     iex> 2 - 1
     1
 
   """
-  @doc guard: true
   @spec C.real_complex - C.real_complex :: C.real_complex
   def left - right, do: C.sub(left, right)
 
@@ -80,12 +88,11 @@ defmodule Quantum.Qop do
   ## Examples
 
     iex> import Kernel, except: [*: 2]
-    iex> import Quantum.Qop
+    iex> import QuantEx.Qop
     iex> 2 * 3
     6
 
   """
-  @doc guard: true
   @spec C.real_complex * C.real_complex :: C.real_complex
   def left * right, do: C.mul(left, right)
 
@@ -94,12 +101,11 @@ defmodule Quantum.Qop do
   ## Examples
 
     iex> import Kernel, except: [/: 2]
-    iex> import Quantum.Qop
+    iex> import QuantEx.Qop
     iex> 6 / 2
     3.0
 
   """
-  @doc guard: true
   @spec C.real_complex / C.real_complex :: C.real_complex
   def left / right, do: C.div(left, right)
 
@@ -111,7 +117,7 @@ defmodule Quantum.Qop do
   ## Examples
 
     iex> import Kernel, except: [if: 2]
-    iex> import Quantum.Qop
+    iex> import QuantEx.Qop
     iex> if(true, do: true)
     true
     iex> if(true, do: true, else: false)
@@ -153,7 +159,7 @@ defmodule Quantum.Qop do
   ## Examples
 
     iex> import Kernel, except: [if: 2, unless: 2]
-    iex> import Quantum.Qop
+    iex> import QuantEx.Qop
     iex> unless(true, do: true)
     nil
     iex> unless(true, do: true, else: false)
@@ -193,17 +199,40 @@ defmodule Quantum.Qop do
   def qubit(num, state), do: pure(num, state)
 
   @doc """
+  U1 gate. - 1 qubit operator
+ 
+  ## Examples
+
+    iex> QuantEx.Qop.x.n
+    1
+    iex> QuantEx.Qop.x.shape
+    [2, 2]
+
+  """
+  @spec u1(integer, U.unitary, Qit.circuit) :: Qit.circuit
+  @spec u1(integer, U.unitary, U.unitary) :: Qit.circuit
+  @spec u1(integer, U.unitary, Q.qubit) :: Qit.circuit
+  @spec u1(integer, U.unitary) :: U.unitary
+  @spec u1(U.unitary) :: U.unitary
+  def u1(t, u, qubit), do: nil
+  def u1(t, u), do: U.new(t, u.to_list)
+  def u1(t) when is_integer(t), do: &u1(t, &1)   # for curry
+  def u1(u) when is_unitary(u), do: u
+
+  @doc """
   X gate.
  
   ## Examples
 
-    iex> Quantum.Qop.x.n
+    iex> QuantEx.Qop.x.n
     1
-    iex> Quantum.Qop.x.shape
+    iex> QuantEx.Qop.x.shape
     [2, 2]
 
   """
-  @spec x(integer, Q.qubit) :: U.unitary
+  @spec x(integer, Qit.circuit) :: Qit.circuit
+  @spec x(integer, U.unitary) :: Qit.circuit
+  @spec x(integer, Q.qubit) :: Qit.circuit
   @spec x(integer) :: U.unitary
   @spec x() :: U.unitary
   def x(n, qubit), do: nil
@@ -215,13 +244,13 @@ defmodule Quantum.Qop do
  
   ## Examples
 
-    iex> Quantum.Qop.y.n
+    iex> QuantEx.Qop.y.n
     1
-    iex> Quantum.Qop.y.shape
+    iex> QuantEx.Qop.y.shape
     [2, 2]
 
   """
-  @spec y(integer, Q.qubit) :: U.unitary
+  @spec y(integer, Q.qubit) :: Qit.circuit
   @spec y(integer) :: U.unitary
   @spec y() :: U.unitary
   def y(n, qubit), do: nil
@@ -233,13 +262,13 @@ defmodule Quantum.Qop do
  
   ## Examples
 
-    iex> Quantum.Qop.z.n
+    iex> QuantEx.Qop.z.n
     1
-    iex> Quantum.Qop.z.shape
+    iex> QuantEx.Qop.z.shape
     [2, 2]
 
   """
-  @spec z(integer, Q.qubit) :: U.unitary
+  @spec z(integer, Q.qubit) :: Qit.circuit
   @spec z(integer) :: U.unitary
   @spec z() :: U.unitary
   def z(n, qubit), do: nil
@@ -253,48 +282,52 @@ defmodule Quantum.Qop do
  
   ## Examples
 
-    iex> Quantum.Qop.h.n
+    iex> QuantEx.Qop.h.n
     1
-    iex> Quantum.Qop.h.shape
+    iex> QuantEx.Qop.h.shape
     [2, 2]
 
   """
-  @spec h(integer, Q.qubit) :: U.unitary
+  @spec h(integer, Q.qubit) :: Qit.circuit
   @spec h(integer) :: U.unitary
   @spec h() :: U.unitary
   def h(n, qubit), do: nil
   def h(n), do: &h(n, &1)
   def h, do: U.new([C.new(r1_2()), C.new(r1_2()), C.new(r1_2()), C.new(-1*r1_2())])
 
+  @doc """
+  CX(CNOT) gate.
+ 
+  ## Examples
 
+    iex> QuantEx.Qop.cx.n
+    2
+    iex> QuantEx.Qop.cx.shape
+    [4, 4]
+    iex> QuantEx.Qop.cnot.n
+    2
+    iex> QuantEx.Qop.cnot.shape
+    [4, 4]
 
-#
-# @doc """
-# Controlled NOT gate.
-#
-# ## Examples
-#   iex> Q.cnot( Q.q0(), Q.q0() ) # |00>
-#   Numexy.new [ 1, 0, 0, 0 ]
-#   iex> Q.cnot( Q.q0(), Q.q1() ) # |01>
-#   Numexy.new [ 0, 1, 0, 0 ]
-#   iex> Q.cnot( Q.q1(), Q.q0() ) # |11>
-#   Numexy.new [ 0, 0, 0, 1 ]
-#   iex> Q.cnot( Q.q1(), Q.q1() ) # |10>
-#   Numexy.new [ 0, 0, 1, 0 ]
-# """
-# def cnot( qubit1, qubit2 ), do: Numexy.dot( cx(), tensordot( qubit1, qubit2, 0 ) )
-# @doc """
-# for Controlled NOT gate 4x4 matrix ... ( ( 1, 0, 0, 0 ), ( 0, 1, 0, 0 ), ( 0, 0, 0, 1 ), ( 0, 0, 1, 0 ) )
-# """
-# def cx() do
-#   Numexy.new [ 
-#     [ 1, 0, 0, 0 ], 
-#     [ 0, 1, 0, 0 ], 
-#     [ 0, 0, 0, 1 ], 
-#     [ 0, 0, 1, 0 ], 
-#   ]
-# end
-#
+  """
+  @spec cx(integer, Q.qubit) :: Qit.circuit
+  @spec cx(integer) :: U.unitary
+  @spec cx() :: U.unitary
+  def cx(n, qubit), do: nil
+  def cx(n), do: &h(n, &1)
+  def cx, do: U.new([C.new(1), C.new(0), C.new(0), C.new(0),
+                     C.new(0), C.new(1), C.new(0), C.new(0),
+                     C.new(0), C.new(0), C.new(0), C.new(1),
+                     C.new(0), C.new(0), C.new(1), C.new(0)
+                    ])
+
+  @spec cnot(integer, Q.qubit) :: Qit.circuit
+  @spec cnot(integer) :: U.unitary
+  @spec cnot() :: U.unitary
+  def cnot(n, qubit), do: cx(n, qubit)
+  def cnot(n), do: cx(n)
+  def cnot, do: cx()
+
 # @doc """
 # Calculate tensor product.<br>
 # TODO: Later, transfer to Numexy github

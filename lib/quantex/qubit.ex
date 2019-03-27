@@ -14,10 +14,10 @@
 #   limitations under the License.
 #
 
-defmodule Quantum.Qubit do
+defmodule QuantEx.Qubit do
   @moduledoc """
   Qubit library namespace.
-  use `use Quantum.Qubit` to alias `Qubit`.
+  use `use QuantEx.Qubit` to alias `Qubit`.
   """
   @doc false
   defmacro __using__(_opts) do
@@ -30,15 +30,15 @@ end
 
 defmodule Tensor.Qubit do
 
-  use Quantum.Complex
+  use QuantEx.Complex
 
   alias Complex, as: C
   alias Tensor.{Tensor, TBase, Qubit}
 
   use TBase, n: 0
 
-  @type t(list, sh, num) :: %Qubit{to_list: list, shape: sh, n: num}
-  @type t :: %Qubit{to_list: list, shape: list, n: integer}
+  @typep t(list, sh, num) :: %Qubit{to_list: list, shape: sh, n: num}
+  @typep t :: %Qubit{to_list: list, shape: list, n: integer}
 
   @opaque qubit :: %Qubit{}
 
@@ -48,6 +48,9 @@ defmodule Tensor.Qubit do
       "Tensor[#{q.shape |> Enum.join("x")}] (#{inspect q.to_list})"
     end
   end
+
+  @spec is_qubit(term) :: boolean
+  def is_qubit(%Qubit{}), do: true
 
   @spec new(list) :: qubit
   def new(list) when is_list(list) do

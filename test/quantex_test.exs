@@ -1,4 +1,5 @@
 #
+#   Copyright 2018-2019 piacere.
 #   Copyright 2019 OpenQL Project developers.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +15,8 @@
 #   limitations under the License.
 #
 
-defmodule QuantumTensorTest do
+defmodule QuantExTest do
   use ExUnit.Case
   use PowerAssert
-  doctest Quantum.Tensor
+  doctest QuantEx
 end
