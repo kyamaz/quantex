@@ -16,7 +16,7 @@
 
 defmodule QuantEx.Unitary do
   @moduledoc """
-  Tensor library namespace.
+  Unitary library namespace.
   use `use QuantEx.Unitary` to alias `Unitary`.
   """
   @doc false
@@ -33,10 +33,8 @@ defmodule Tensor.Unitary do
   alias Tensor.{Tensor, TBase, Unitary}
   use TBase, [n: 0, t: [] ]
 
-  @typep t(shape, list, num, target) :: %Unitary{n: num, t: target, shape: shape, to_list: list}
-  @typep t :: %Unitary{n: integer, t: [integer], to_list: list, shape: list}
-
-  @opaque unitary :: %Unitary{}
+  @type unitary(shape, list, num, target) :: %Unitary{n: num, t: target, shape: shape, to_list: list}
+  @opaque unitary :: %Unitary{n: integer, t: [integer], to_list: list, shape: list}
 
   defimpl Inspect, for: Unitary do
     def inspect(u, _opts) do

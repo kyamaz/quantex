@@ -16,7 +16,7 @@
 
 defmodule QuantEx.Complex do
   @moduledoc """
-  Tensor library namespace.
+  Complex library namespace.
   use `use QuantEx.Complex` to alias `Complex`.
   """
   @doc false
@@ -36,11 +36,9 @@ defmodule Complex do
 
   defstruct re: 0.0, im: 0.0
 
-  @typep t(real, imag) :: %Complex{re: real, im: imag}
-  @typep t :: %Complex{re: number, im: number}
-
-  @opaque complex :: %Complex{}
-  @type real_complex :: t | number
+  @type complex(real, imag) :: %Complex{re: real, im: imag}
+  @opaque complex :: %Complex{re: number, im: number}
+  @opaque real_complex :: complex | number
 
   defimpl Inspect, for: Complex do
     def inspect(complex, _opts) do
@@ -48,21 +46,21 @@ defmodule Complex do
     end
   end
 
+  defguardp complex?(value) when value == %Complex{}
+
   @spec is_complex(term) :: boolean
   def is_complex(%Complex{}), do: true
+  def is_complex(_), do: false
 
   @spec new(number, number) :: complex
   def new(real \\ 0.0, imag \\ 0.0), do: %Complex{re: real, im: imag}
 
-  @spec convert(real_complex) :: t
+  @spec complex(number, number) :: complex
+  def complex(real \\ 0.0, imag \\ 0.0), do: new(real, imag)
+
+  @spec convert(real_complex) :: complex
   def convert(x = %Complex{}), do: x
   def convert(r), do: new(r, 0.0)
-
-  @doc guard: true
-  @spec is_complex(complex) :: boolean
-  def is_complex(term) do
-    true
-  end
 
   @spec to_complex(number, number) :: complex
   def to_complex(real \\ 0.0, imag \\ 0.0), do: new(real, imag)
@@ -83,10 +81,12 @@ defmodule Complex do
   end
 
   @spec real(real_complex) :: number
-  def real(c), do: c.r
+  def real(c) when complex?(c), do: c.re
+  def real(c), do: c
 
   @spec imag(real_complex) :: number
-  def imag(c), do: c.i
+  def imag(c) when complex?(c), do: c.im
+  def imag(c) when is_number(c), do: 0.0
 
   @spec i(real_complex) :: number
   def i(c), do: imag(c)
@@ -121,7 +121,7 @@ defmodule Complex do
   def mul(a), do: &mul(a, &1)
   def mul, do: &mul(&1)
 
-  @spec div(real_complex, real_complex) :: t | float
+  @spec div(real_complex, real_complex) :: complex | float
   def div(%Complex{re: r1, im: i1}, %Complex{re: r2, im: i2}) do
     if Kernel.abs(r2) >= Kernel.abs(i2) do
       rat = i2/r2
@@ -151,25 +151,21 @@ defmodule Complex do
   def neg(%Complex{re: r, im: i}), do: new(-r, -i)
   def neg(x), do: -x
 
-  @spec abs(real_complex) :: number
-  def abs(%Complex{re: r, im: i}), do: hypot(r, i)
-  def abs(x), do: Kernel.abs(x)
-
-  @spec conj(t) :: t
-  @spec conj(a) :: a when a: number
-  def conj(%Complex{re: r, im: i}), do: new(r, -i)
-  def conj(x), do: x
-
-  @spec hypot(number, number) :: float
-  defp hypot(a, b) do
-    a = abs(a)
-    b = abs(b)
-
+  @spec abs(a) :: a when a: real_complex
+  def abs(%Complex{re: r, im: i}) do
+    a = abs(r)
+    b = abs(i)
     if a == 0 do
       0.0
     else
       :math.sqrt(a*a + b*b)
     end
   end
+  def abs(x), do: Kernel.abs(x)
+
+  @spec conj(complex) :: complex
+  def conj(%Complex{re: r, im: i}), do: new(r, -i)
+  @spec conj(a) :: a when a: number
+  def conj(x), do: x
 
 end

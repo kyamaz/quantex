@@ -41,10 +41,8 @@ defmodule Tensor.Tensor do
   alias Tensor.{Tensor, TBase}
   use TBase
 
-  @typep t(list, shape) :: %Tensor{to_list: list, shape: shape}
-  @typep t :: %Tensor{to_list: list, shape: list}
-
-  @opaque tensor :: %Tensor{}
+  @type tensor(list, shape) :: %Tensor{to_list: list, shape: shape}
+  @opaque tensor :: %Tensor{to_list: list, shape: list(non_neg_integer)}
 
   defimpl Inspect, for: Tensor do
     def inspect(tensor, _opts) do
@@ -52,7 +50,7 @@ defmodule Tensor.Tensor do
     end
   end
 
-  @spec new([], [integer]) :: tensor
+  @spec new([], [non_neg_integer]) :: tensor
   def new(nested_list_of_values, shape \\ []) do
     lists = nested_list_of_values
             |> List.flatten
@@ -78,5 +76,14 @@ defmodule Tensor.Tensor do
 
   @spec is_matrix(term) :: boolean
   def is_matrix(t), do: matrix?(t)
+
+  @spec swap(list, non_neg_integer, non_neg_integer) :: list
+  defp swap(list, a, b) when a < b do
+    {h, rest} = Enum.split(list, a)
+    {center, t} = Enum.split(rest, b - a)
+    h ++ [hd(t)] ++ tl(center) ++ [hd(center)] ++ tl(t)
+  end
+  defp swap(list, a, b) when b < a, do: swap(list, b, a)
+  defp swap(list, a, a), do: list
 
 end

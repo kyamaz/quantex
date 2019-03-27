@@ -26,12 +26,12 @@ defmodule QuantEx do
     qubit: :qubit
   ]
 
-
   @binary [
     +: :+,
     -: :-,
     *: :*,
     /: :/,
+    ===: :===,
     if: :if,
     unless: :unless,
     div: :div
@@ -58,6 +58,7 @@ defmodule QuantEx do
     end
   end
 
+  # replace one parameter operations
   Enum.each @unary, fn({op, name}) ->
     @doc false
     def unquote(op)(a) do
@@ -65,8 +66,9 @@ defmodule QuantEx do
     end
   end
 
-  macros = [if: :if, unless: :unless]
-  Enum.each @binary -- macros, fn({op, name}) ->
+  # replace two parameter operations
+  macs = [if: :if, unless: :unless]
+  Enum.each @binary -- macs, fn({op, name}) ->
     @doc false
     def unquote(op)(a, b) do
       QuantEx.Qop.unquote(name)(a, b)

@@ -16,7 +16,7 @@
 
 defmodule QuantEx.Circuit do
   @moduledoc """
-  Tensor library namespace.
+  Circuit library namespace.
   use `use QuantEx.Qit` to alias `Qit`.
   """
   @doc false
@@ -33,15 +33,12 @@ defmodule QuantEx.Qit do
 
   use QuantEx.Unitary
 
-  # alias QuantEx.Unitary, as: U
   alias QuantEx.Qit
 
   defstruct n: 0, gates: []
 
-  @typep t(num, gate_list) :: %Qit{n: num, gates: gate_list}
-  @typep t :: %Qit{n: integer, gates: list}
-
-  @opaque circuit :: %Qit{}
+  @type circuit(num, gate_list) :: %Qit{n: num, gates: gate_list}
+  @opaque circuit :: %Qit{n: integer, gates: list}
 
   defimpl Inspect, for: Qit do
     def inspect(q, _opts) do

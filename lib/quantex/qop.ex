@@ -17,6 +17,8 @@
 
 defmodule QuantEx.Operator do
   @moduledoc """
+  Operator library namespace.
+  use `use QuantEx.Operator` to alias `Qop`.
   """
   @doc false
   defmacro __using__(_opts) do
@@ -34,6 +36,7 @@ defmodule QuantEx.Qop do
   require Math
 
   import Kernel, except: [+: 2, -: 2, *: 2,
+                          ===: 2,
                           if: 2, unless: 2
                           ]
 
@@ -50,12 +53,22 @@ defmodule QuantEx.Qop do
 
   ### for guard
 
-  defguard is_unitary(value) when value === %Unitary{}
+  defguard is_unitary(value) when value == %Unitary{}
+  defguard is_complex(value) when value == %Complex{}
+  defguard is_qubit(value) when value == %Qubit{}
 
-  @doc guard: true
-  @spec unitary?(term) :: boolean
-  def unitary?(%Unitary{}), do: true
-  def unitary?(_), do: false
+  @doc """
+
+  ## Examples
+
+    iex> import Kernel, except: [===: 2]
+    iex> import QuantEx.Qop
+    iex> C.new(1) === C.new(1)
+    true
+
+  """
+  @spec C.real_complex === C.real_complex :: C.real_complex
+  def left === right, do: C.equal?(left, right)
 
   @doc """
 
@@ -214,7 +227,7 @@ defmodule QuantEx.Qop do
   @spec u1(integer, U.unitary, Q.qubit) :: Qit.circuit
   @spec u1(integer, U.unitary) :: U.unitary
   @spec u1(U.unitary) :: U.unitary
-  def u1(t, u, qubit), do: nil
+  def u1(t, u, q), do: nil
   def u1(t, u), do: U.new(t, u.to_list)
   def u1(t) when is_integer(t), do: &u1(t, &1)   # for curry
   def u1(u) when is_unitary(u), do: u
@@ -235,7 +248,7 @@ defmodule QuantEx.Qop do
   @spec x(integer, Q.qubit) :: Qit.circuit
   @spec x(integer) :: U.unitary
   @spec x() :: U.unitary
-  def x(n, qubit), do: nil
+  def x(n, q), do: nil
   def x(n), do: &x(n, &1)
   def x, do: U.new([C.new(0), C.new(1), C.new(1), C.new(0)])
 
@@ -253,7 +266,7 @@ defmodule QuantEx.Qop do
   @spec y(integer, Q.qubit) :: Qit.circuit
   @spec y(integer) :: U.unitary
   @spec y() :: U.unitary
-  def y(n, qubit), do: nil
+  def y(n, q), do: nil
   def y(n), do: &y(n, &1)
   def y, do: U.new([C.new(0), C.new(0,-1), C.new(0,1), C.new(0)])
 
@@ -271,7 +284,7 @@ defmodule QuantEx.Qop do
   @spec z(integer, Q.qubit) :: Qit.circuit
   @spec z(integer) :: U.unitary
   @spec z() :: U.unitary
-  def z(n, qubit), do: nil
+  def z(n, q), do: nil
   def z(n), do: &z(n, &1)
   def z, do: U.new([C.new(1), C.new(0), C.new(0), C.new(-1)])
 
@@ -291,7 +304,7 @@ defmodule QuantEx.Qop do
   @spec h(integer, Q.qubit) :: Qit.circuit
   @spec h(integer) :: U.unitary
   @spec h() :: U.unitary
-  def h(n, qubit), do: nil
+  def h(n, q), do: nil
   def h(n), do: &h(n, &1)
   def h, do: U.new([C.new(r1_2()), C.new(r1_2()), C.new(r1_2()), C.new(-1*r1_2())])
 
@@ -313,8 +326,8 @@ defmodule QuantEx.Qop do
   @spec cx(integer, Q.qubit) :: Qit.circuit
   @spec cx(integer) :: U.unitary
   @spec cx() :: U.unitary
-  def cx(n, qubit), do: nil
-  def cx(n), do: &h(n, &1)
+  def cx(n, q), do: nil
+  def cx(n), do: &cx(n, &1)
   def cx, do: U.new([C.new(1), C.new(0), C.new(0), C.new(0),
                      C.new(0), C.new(1), C.new(0), C.new(0),
                      C.new(0), C.new(0), C.new(0), C.new(1),
@@ -324,7 +337,7 @@ defmodule QuantEx.Qop do
   @spec cnot(integer, Q.qubit) :: Qit.circuit
   @spec cnot(integer) :: U.unitary
   @spec cnot() :: U.unitary
-  def cnot(n, qubit), do: cx(n, qubit)
+  def cnot(n, q), do: cx(n, q)
   def cnot(n), do: cx(n)
   def cnot, do: cx()
 

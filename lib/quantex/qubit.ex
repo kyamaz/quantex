@@ -37,10 +37,8 @@ defmodule Tensor.Qubit do
 
   use TBase, n: 0
 
-  @typep t(list, sh, num) :: %Qubit{to_list: list, shape: sh, n: num}
-  @typep t :: %Qubit{to_list: list, shape: list, n: integer}
-
-  @opaque qubit :: %Qubit{}
+  @type qubit(list, sh, num) :: %Qubit{to_list: list, shape: sh, n: num}
+  @opaque qubit :: %Qubit{to_list: list, shape: list, n: integer}
 
   defimpl Inspect, for: Qubit do
     def inspect(q, _opts) do

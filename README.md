@@ -3,6 +3,8 @@
 [Quantex](https://hex.pm/packages/quantex) is a quantum computer system environment and libraries in Elixir. Here is an example:
 
 ```elixir
+iex> use QuantEx
+
 iex> Q.q0  # |0> qubit = ( 1, 0 )
 %Array{array: [1, 0], shape: {2, nil}}
 
