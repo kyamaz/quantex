@@ -50,6 +50,7 @@ defmodule QuantEx do
       use QuantEx.Unitary
       use QuantEx.Circuit
       use QuantEx.Operator
+      use QuantEx.Processor
       import QuantEx.Qop, only: unquote(ops)
 
       alias Complex, as: C

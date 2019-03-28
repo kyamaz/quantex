@@ -56,6 +56,7 @@ defmodule QuantEx.Qop do
   defguardp is_unitary(value) when value == %Unitary{}
   defguardp is_complex(value) when value == %Complex{}
   defguardp is_qubit(value) when value == %Qubit{}
+  defguardp is_circuit(value) when value == %Qit{}
 
   @doc """
 
@@ -204,8 +205,9 @@ defmodule QuantEx.Qop do
   create pure state qubit
   """
   @spec pure(list) :: Q.qubit
-  @spec pure(integer, T.tensor) :: Q.qubit
   defdelegate pure(list), to: Q
+
+  @spec pure(integer, T.tensor) :: Q.qubit
   defdelegate pure(num, state), to: Q
 
   def qubit(list), do: pure(list)
@@ -222,14 +224,24 @@ defmodule QuantEx.Qop do
     [2, 2]
 
   """
-  @spec u1(integer, U.unitary, Qit.circuit) :: Qit.circuit
-  @spec u1(integer, U.unitary, U.unitary) :: Qit.circuit
-  @spec u1(integer, U.unitary, Q.qubit) :: Qit.circuit
-  @spec u1(integer, U.unitary) :: U.unitary
+  @spec u1(non_neg_integer, U.unitary, Qit.circuit) :: Qit.circuit
+  def u1(t, u, c) when is_integer(t) and is_unitary(u) and is_circuit(c), do: nil
+
+  @spec u1(non_neg_integer, U.unitary, U.unitary) :: Qit.circuit
+  def u1(t, u1, u2) when is_integer(t) and is_unitary(u1) and is_unitary(u2), do: nil
+
+  @spec u1(non_neg_integer, U.unitary, Q.qubit) :: Qit.circuit
+  def u1(t, u, q) when is_integer(t) and is_unitary(u) and is_qubit(q), do: nil
+
+  @spec u1(non_neg_integer, U.unitary, C.real_complex) :: U.unitary
+  def u1(t, u, c) when is_integer(t) and is_unitary(u), do: U.new(t, u.to_list)
+
+  @spec u1(non_neg_integer, U.unitary) :: U.unitary
+  def u1(t,u) when is_integer(t) and is_unitary(u), do: U.new(t, u.to_list)
+
+  def u1(t) when is_integer(t), do: &u1(t, &1)  # for curry
+
   @spec u1(U.unitary) :: U.unitary
-  def u1(t, u, q), do: nil
-  def u1(t, u), do: U.new(t, u.to_list)
-  def u1(t) when is_integer(t), do: &u1(t, &1)   # for curry
   def u1(u) when is_unitary(u), do: u
 
   @doc """
