@@ -28,9 +28,9 @@ defmodule QuantEx.Tensor do
 end
 
 defmodule Tensor.TBase do
-  @base_fields [to_list: [], shape: []]
+  @base_fields [shape: [], to_list: []]
   defmacro __using__(fields) do
-    fields = @base_fields ++ fields
+    fields = fields ++ @base_fields
     quote do
       defstruct unquote(fields)
     end
@@ -41,8 +41,12 @@ defmodule Tensor.Tensor do
   alias Tensor.{Tensor, TBase}
   use TBase
 
-  @type tensor(list, shape) :: %Tensor{to_list: list, shape: shape}
-  @opaque tensor :: %Tensor{to_list: list, shape: list(non_neg_integer)}
+  use QuantEx.Complex
+  alias Complex, as: C
+
+  @type t(sh, arr) :: %Tensor{shape: sh, to_list: arr}
+  @type t :: %Tensor{shape: list(non_neg_integer), to_list: list(C.real_complex)}
+  @opaque tensor :: %Tensor{}
 
   defimpl Inspect, for: Tensor do
     def inspect(tensor, _opts) do
@@ -60,22 +64,15 @@ defmodule Tensor.Tensor do
   @spec tensor?(tensor) :: boolean
   def tensor?(%Tensor{}), do: true
 
-  @spec is_tensor(term) :: boolean
-  def is_tensor(t), do: tensor?(t)
+  defguardp is_tensor(value) when value == %Tensor{}
 
   @spec vector?(tensor) :: boolean
   def vector?(%Tensor{shape: [_]}), do: true
   def vector?(%Tensor{}), do: false
 
-  @spec is_vector(term) :: boolean
-  def is_vector(t), do: vector?(t)
-
   @spec matrix?(tensor) :: boolean
   def matrix?(%Tensor{shape: [_,_]}), do: true
   def matrix?(%Tensor{}), do: false
-
-  @spec is_matrix(term) :: boolean
-  def is_matrix(t), do: matrix?(t)
 
   @spec swap(list, non_neg_integer, non_neg_integer) :: list
   defp swap(list, a, b) when a < b do

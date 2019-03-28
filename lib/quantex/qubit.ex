@@ -37,8 +37,9 @@ defmodule Tensor.Qubit do
 
   use TBase, n: 0
 
-  @type qubit(list, sh, num) :: %Qubit{to_list: list, shape: sh, n: num}
-  @opaque qubit :: %Qubit{to_list: list, shape: list, n: integer}
+  @type t(list, sh, num) :: %Qubit{to_list: list, shape: sh, n: num}
+  @type t :: %Qubit{to_list: list, shape: list, n: non_neg_integer}
+  @opaque qubit :: %Qubit{}
 
   defimpl Inspect, for: Qubit do
     def inspect(q, _opts) do
@@ -47,8 +48,11 @@ defmodule Tensor.Qubit do
     end
   end
 
-  @spec is_qubit(term) :: boolean
-  def is_qubit(%Qubit{}), do: true
+  defguardp is_qubit(value) when value == %Qubit{}
+
+  @spec qubit?(term) :: boolean
+  def qubit?(%Qubit{}), do: true
+  def qubit?(_), do: false
 
   @spec new(list) :: qubit
   def new(list) when is_list(list) do

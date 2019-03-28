@@ -36,8 +36,9 @@ defmodule Complex do
 
   defstruct re: 0.0, im: 0.0
 
-  @type complex(real, imag) :: %Complex{re: real, im: imag}
-  @opaque complex :: %Complex{re: number, im: number}
+  @type t(real, imag) :: %Complex{re: real, im: imag}
+  @type t :: %Complex{re: number, im: number}
+  @opaque complex :: %Complex{}
   @opaque real_complex :: complex | number
 
   defimpl Inspect, for: Complex do
@@ -46,11 +47,11 @@ defmodule Complex do
     end
   end
 
-  defguardp complex?(value) when value == %Complex{}
+  defguardp is_complex(value) when value == %Complex{}
 
-  @spec is_complex(term) :: boolean
-  def is_complex(%Complex{}), do: true
-  def is_complex(_), do: false
+  @spec complex?(term) :: boolean
+  def complex?(%Complex{}), do: true
+  def complex?(_), do: false
 
   @spec new(number, number) :: complex
   def new(real \\ 0.0, imag \\ 0.0), do: %Complex{re: real, im: imag}
@@ -81,11 +82,11 @@ defmodule Complex do
   end
 
   @spec real(real_complex) :: number
-  def real(c) when complex?(c), do: c.re
+  def real(c) when is_complex(c), do: c.re
   def real(c), do: c
 
   @spec imag(real_complex) :: number
-  def imag(c) when complex?(c), do: c.im
+  def imag(c) when is_complex(c), do: c.im
   def imag(c) when is_number(c), do: 0.0
 
   @spec i(real_complex) :: number

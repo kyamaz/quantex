@@ -32,13 +32,13 @@ defmodule QuantEx.Qit do
   """
 
   use QuantEx.Unitary
-
   alias QuantEx.Qit
 
   defstruct n: 0, gates: []
 
-  @type circuit(num, gate_list) :: %Qit{n: num, gates: gate_list}
-  @opaque circuit :: %Qit{n: integer, gates: list}
+  @type t(num, lis) :: %Qit{n: num, gates: lis}
+  @type t :: %Qit{n: non_neg_integer, gates: list}
+  @opaque circuit :: %Qit{}
 
   defimpl Inspect, for: Qit do
     def inspect(q, _opts) do
@@ -51,7 +51,8 @@ defmodule QuantEx.Qit do
     %Qit{n: nn, gates: list}
   end
 
-  @spec is_circuit(term) :: boolean
-  def is_circuit(%Qit{}), do: true
+  @spec circuit?(term) :: boolean
+  def circuit?(%Qit{}), do: true
+  def circuit?(_), do: false
 
 end

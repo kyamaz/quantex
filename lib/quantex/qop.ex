@@ -53,9 +53,9 @@ defmodule QuantEx.Qop do
 
   ### for guard
 
-  defguard is_unitary(value) when value == %Unitary{}
-  defguard is_complex(value) when value == %Complex{}
-  defguard is_qubit(value) when value == %Qubit{}
+  defguardp is_unitary(value) when value == %Unitary{}
+  defguardp is_complex(value) when value == %Complex{}
+  defguardp is_qubit(value) when value == %Qubit{}
 
   @doc """
 

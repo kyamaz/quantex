@@ -33,8 +33,9 @@ defmodule Tensor.Unitary do
   alias Tensor.{Tensor, TBase, Unitary}
   use TBase, [n: 0, t: [] ]
 
-  @type unitary(shape, list, num, target) :: %Unitary{n: num, t: target, shape: shape, to_list: list}
-  @opaque unitary :: %Unitary{n: integer, t: [integer], to_list: list, shape: list}
+  @type t(shape, list, num, target) :: %Unitary{n: num, t: target, shape: shape, to_list: list}
+  @type t :: %Unitary{n: non_neg_integer, t: list(non_neg_integer), to_list: list, shape: list(non_neg_integer)}
+  @opaque unitary :: %Unitary{}
 
   defimpl Inspect, for: Unitary do
     def inspect(u, _opts) do
@@ -42,6 +43,12 @@ defmodule Tensor.Unitary do
       "Tensor[#{u.shape |> Enum.join("x")}] (#{inspect u.to_list})"
     end
   end
+
+  defguardp is_unitary(value) when value == %Unitary{}
+
+  @spec unitary?(term) :: boolean
+  def unitary?(%Unitary{}), do: true
+  def unitary?(_), do: false
 
   @spec new(integer, list) :: unitary
   def new(target, list) when is_list(list) and is_integer(target) do
