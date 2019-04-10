@@ -47,7 +47,8 @@ defmodule Complex do
     end
   end
 
-  defguardp is_complex(value) when value == %Complex{}
+  @spec is_complex(term) :: boolean
+  def is_complex(s), do: is_map(s) && Map.has_key?(s, :__struct__) && s.__struct__ == Complex
 
   @spec complex?(term) :: boolean
   def complex?(%Complex{}), do: true
@@ -82,12 +83,21 @@ defmodule Complex do
   end
 
   @spec real(real_complex) :: number
-  def real(c) when is_complex(c), do: c.re
-  def real(c), do: c
+  def real(c) do
+    case is_complex(c) do # custom guard
+      true  -> c.re
+      false -> c
+    end
+  end
 
   @spec imag(real_complex) :: number
-  def imag(c) when is_complex(c), do: c.im
-  def imag(c) when is_number(c), do: 0.0
+  def imag(c) do
+    case {is_complex(c), is_number(c)} do # custom guard
+      {true, _} -> c.im
+      {_, true} -> 0.0
+      {_, _} -> nil
+    end
+  end
 
   @spec i(real_complex) :: number
   def i(c), do: imag(c)

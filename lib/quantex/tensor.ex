@@ -55,16 +55,17 @@ defmodule Tensor.Tensor do
   end
 
   @spec new([], [non_neg_integer]) :: tensor
-  def new(nested_list_of_values, shape \\ []) do
+  def new(nested_list_of_values, sh \\ []) do
     lists = nested_list_of_values
             |> List.flatten
-    %Tensor{to_list: lists, shape: shape}
+    %Tensor{to_list: lists, shape: sh}
   end
+
+  @spec is_tensor(term) :: boolean
+  def is_tensor(s), do: is_map(s) && Map.has_key?(s, :__struct__) && s.__struct__ == Tensor
 
   @spec tensor?(tensor) :: boolean
   def tensor?(%Tensor{}), do: true
-
-  defguardp is_tensor(value) when value == %Tensor{}
 
   @spec vector?(tensor) :: boolean
   def vector?(%Tensor{shape: [_]}), do: true

@@ -35,7 +35,7 @@ defmodule QuantEx.Qpu do
 
   defstruct n: 0, profile: {}
 
-  @type t(num, lis) :: %Qpu{n: num, profile: lis}
+  @type t(nn, arr) :: %Qpu{n: nn, profile: arr}
   @type t :: %Qpu{n: non_neg_integer, profile: list}
   @opaque qpu :: %Qpu{}
 

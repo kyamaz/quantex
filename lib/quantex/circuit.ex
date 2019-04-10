@@ -36,7 +36,7 @@ defmodule QuantEx.Qit do
 
   defstruct n: 0, gates: []
 
-  @type t(num, lis) :: %Qit{n: num, gates: lis}
+  @type t(nn, arr) :: %Qit{n: nn, gates: arr}
   @type t :: %Qit{n: non_neg_integer, gates: list}
   @opaque circuit :: %Qit{}
 
@@ -46,10 +46,17 @@ defmodule QuantEx.Qit do
     end
   end
 
-  @spec new(integer, list) :: circuit
-  def new(nn, list) when is_number(nn) and is_list(list) do
-    %Qit{n: nn, gates: list}
+  @spec new(non_neg_integer, list) :: circuit
+  def new(nn, arr) when is_number(nn) and is_list(arr) do
+    %Qit{n: nn, gates: arr}
   end
+  @spec new(non_neg_integer) :: circuit
+  def new(nn) when is_number(nn) do
+    %Qit{n: nn}
+  end
+
+  @spec is_circuit(term) :: boolean
+  def is_circuit(s), do: is_map(s) && Map.has_key?(s, :__struct__) && s.__struct__ == Qit
 
   @spec circuit?(term) :: boolean
   def circuit?(%Qit{}), do: true

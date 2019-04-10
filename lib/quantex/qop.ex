@@ -40,6 +40,27 @@ defmodule QuantEx.Qop do
                           if: 2, unless: 2
                           ]
 
+  defstruct nm: nil, n: 1, t: 0, c: [], opts: nil
+
+  alias QuantEx.Qop
+
+  @type t(opts_type) :: %Qop{nm: atom, n: non_neg_integer, t: non_neg_integer, c: list(non_neg_integer), opts: opts_type}
+  @type t :: %Qop{nm: atom, n: non_neg_integer, t: non_neg_integer, c: list(non_neg_integer), opts: any}
+  @opaque qop :: %Qop{}
+
+  defimpl Inspect, for: Qop do
+    def inspect(qop, _opts) do
+      "#{qop.n}-qubit operator: #{qop.nm}(#{qop.t},[#{inspect qop.c}]) opts:#{inspect qop.opts}"
+    end
+  end
+
+  @spec new(atom, non_neg_integer, non_neg_integer, list(non_neg_integer), C.real_complex) :: qop
+  def new(name, target \\ 0, options \\ nil, nqubits \\ 1, controls \\ nil),
+    do: %Qop{nm: name, n: nqubits, t: target, c: controls, opts: options}
+
+  @spec is_qop(term) :: boolean
+  def is_qop(s), do: is_map(s) && Map.has_key?(s, :__struct__) && s.__struct__ == Qop
+
   use QuantEx.Complex
   use QuantEx.Qubit
   use QuantEx.Unitary
@@ -51,20 +72,14 @@ defmodule QuantEx.Qop do
   alias Unitary, as: U
   alias Tensor, as: T
 
-  ### for guard
-
-  defguardp is_unitary(value) when value == %Unitary{}
-  defguardp is_complex(value) when value == %Complex{}
-  defguardp is_qubit(value) when value == %Qubit{}
-  defguardp is_circuit(value) when value == %Qit{}
-
   @doc """
 
   ## Examples
 
     iex> import Kernel, except: [===: 2]
     iex> import QuantEx.Qop
-    iex> C.new(1) === C.new(1)
+    iex> import QuantEx.Complex
+    iex> Complex.new(1) === Complex.new(1)
     true
 
   """
@@ -215,38 +230,150 @@ defmodule QuantEx.Qop do
 
   @doc """
   U1 gate. - 1 qubit operator
- 
+
   ## Examples
 
-    iex> QuantEx.Qop.x.n
-    1
-    iex> QuantEx.Qop.x.shape
-    [2, 2]
+    #iex> QuantEx.Qop.x.n
+    #1
+    #iex> QuantEx.Qop.x.shape
+    #[2, 2]
 
   """
-  @spec u1(non_neg_integer, U.unitary, Qit.circuit) :: Qit.circuit
-  def u1(t, u, c) when is_integer(t) and is_unitary(u) and is_circuit(c), do: nil
+  @spec u1(Qit.circuit, qop) :: Qit.circuit
+  def u1(circ = %Qit{}, op1 = %Qop{}) do
+    %Qit{n: max(circ.n, op1.n), gates: circ.gates ++ op1}
+  end
+  @spec u1(qop, qop) :: Qit.circuit
+  def u1(op2 = %Qop{}, op1 = %Qop{}) do
+    %Qit{n: max(op1.n, op2.n), gates: [op2, op1]}
+  end
+  @spec u1(U.unitary, qop) :: Qit.circuit
+  def u1(u = %Unitary{}, op1 = %Qop{}) do
+    %Qit{n: max(u.n, op1.n), gates: [op1]}  # FIXME: must use u
+  end
+  @spec u1(C.complex, qop) :: Qit.circuit
+  def u1(c = %Complex{}, op1 = %Qop{}) do
+    if is_map(c), do: false
+    %Qit{n: op1.n, gates: [op1]}  # FIXME: must use c
+  end
+  @spec u1(number, qop) :: Qit.circuit
+  def u1(c, op1 = %Qop{}) when is_number(c) do
+    %Qit{n: op1.n, gates: [op1]} # FIXME: must use c
+  end
 
-  @spec u1(non_neg_integer, U.unitary, U.unitary) :: Qit.circuit
-  def u1(t, u1, u2) when is_integer(t) and is_unitary(u1) and is_unitary(u2), do: nil
+  @spec u1(C.real_complex, C.real_complex, C.real_complex, non_neg_integer, atom) :: qop
+  def u1(a1 = %Complex{}, a2 = %Complex{}, a3 = %Complex{}, target, name)
+   when is_number(target) and is_atom(name) do
+      %Qop{nm: :u1, n: 1, t: target, opts: [a1, a2, a3]}
+  end
+  def u1(a1, a2 = %Complex{}, a3 = %Complex{}, target, name)
+   when is_number(a1) and is_number(target) and is_atom(name) do
+  end
+  def u1(a1 = %Complex{}, a2, a3 = %Complex{}, target, name)
+   when is_number(a2) and is_number(target) and is_atom(name) do
+  end
+  def u1(a1 = %Complex{}, a2 = %Complex{}, a3, target, name)
+   when is_number(a3) and is_number(target) and is_atom(name) do
+  end
+  def u1(a1 = %Complex{}, a2, a3, target, name)
+   when is_number(a2) and is_number(a3) and is_number(target) and is_atom(name) do
+  end
+  def u1(a1, a2 = %Complex{}, a3, target, name)
+   when is_number(a2) and is_number(a3) and is_number(target) and is_atom(name) do
+  end
+  def u1(a1, a2, a3 = %Complex{}, target, name)
+   when is_number(a2) and is_number(a3) and is_number(target) and is_atom(name) do
+  end
+  def u1(a1, a2, a3, target, name)
+   when is_number(a1) and is_number(a2) and is_number(a3)
+    and is_number(target) and is_atom(name) do
+  end
 
-  @spec u1(non_neg_integer, U.unitary, Q.qubit) :: Qit.circuit
-  def u1(t, u, q) when is_integer(t) and is_unitary(u) and is_qubit(q), do: nil
+  @spec u1(C.real_complex, C.real_complex, non_neg_integer, atom) :: qop
+  def u1(a1 = %Complex{}, a2 = %Complex{}, target, name)
+      when is_number(target) and is_atom(name) do
+  end
+  def u1(m, a1 = %Complex{}, a2 = %Complex{}, target, name)
+      when is_map(m) and is_number(target) and is_atom(name) do
+  end
 
-  @spec u1(non_neg_integer, U.unitary, C.real_complex) :: U.unitary
-  def u1(t, u, c) when is_integer(t) and is_unitary(u), do: U.new(t, u.to_list)
+  def u1(a1, a2 = %Complex{}, target, name)
+      when is_number(a1) and is_number(target) and is_atom(name) do
+  end
+  def u1(m, a1, a2 = %Complex{}, target, name)
+      when is_map(m) and is_number(a1) and is_number(target) and is_atom(name) do
+  end
 
-  @spec u1(non_neg_integer, U.unitary) :: U.unitary
-  def u1(t,u) when is_integer(t) and is_unitary(u), do: U.new(t, u.to_list)
+  def u1(a1 = %Complex{}, a2, target, name)
+      when is_number(a2) and is_number(target) and is_atom(name) do
+  end
+  def u1(m, a1 = %Complex{}, a2, target, name)
+      when is_map(m) and is_number(a2)
+       and is_number(target) and is_atom(name) do
+  end
 
-  def u1(t) when is_integer(t), do: &u1(t, &1)  # for curry
+  def u1(a1, a2, target, name)
+      when is_number(a1) and is_number(a2)
+        and is_integer(target) and target > 0 and is_atom(name) do
+  end
+  def u1(m, a1, a2, target, name)
+      when is_map(m) and is_number(a1) and is_number(a2)
+       and is_integer(target) and target > 0 and is_atom(name) do
+  end
 
-  @spec u1(U.unitary) :: U.unitary
-  def u1(u) when is_unitary(u), do: u
+  @spec u1(C.reql_complex, non_neg_integer, atom) :: qop
+  def u1(a1 = %Complex{}, target, name)
+      when is_integer(target) and target > 0 and is_atom(name) do
+  end
+  @spec u1(map, C.reql_complex, non_neg_integer, atom) :: qop
+  def u1(m, a1 = %Complex{}, target, name)
+      when is_map(m) and is_integer(target) and target > 0 and is_atom(name) do
+  end
+
+  @spec u1(U.unitary, non_neg_integer, atom) :: qop
+  def u1(a1 = %Unitary{}, target, name)
+      when is_atom(name) and is_integer(target) and target > 0 do
+    new(name, target, a1, 1)
+  end
+  @spec u1(map, U.unitary, non_neg_integer, atom) :: Qit.circut
+  def u1(m, a1 = %Unitary{}, target, name)
+      when is_map(m) and is_atom(name) and is_integer(target) and target > 0 do
+    u = u1(a1, target, name)
+    u1(m , u)
+  end
+
+  @spec u1(U.unitary, non_neg_integer) :: qop
+  def u1(a1 = %Unitary{}, target)
+      when is_integer(target) and target > 0 do
+    new(:u1, target, a1, 1)
+  end
+  @spec u1(map, U.unitary, non_neg_integer) :: Qit.circuit
+  def u1(m, a1 = %Unitary{}, target)
+     when is_map(m) and is_integer(target) and target > 0, do: u1(m, u1(a1, target))
+
+  @spec u1(list(C.real_complex), non_neg_integer, atom) :: qop
+  def u1(a1, target, name)
+      when is_list(a1) and is_integer(target) and target > 0, do: u1(U.new(a1), target, name)
+  @spec u1(map,list(C.real_complex), non_neg_integer, atom) :: Qit.circuit
+  def u1(m, a1, target, name)
+      when is_map(m) and is_list(a1) and is_integer(target) and target > 0 do
+        u = u1(U.new(a1), target, name)
+        u1(m, u)
+      end
+
+  @spec u1(list(C.real_complex), non_neg_integer) :: qop
+  def u1(a1, target)
+      when is_list(a1) and is_integer(target) and target > 0, do: u1(U.new(a1),target, :u1)
+  @spec u1(map, list(C.real_complex), non_neg_integer) :: qop
+  def u1(m, a1, target)
+      when is_map(m) and is_list(a1) and is_integer(target) and target > 0 do
+        u = u1(U.new(a1),target, :u1)
+        u1(m, u)
+      end
 
   @doc """
   X gate.
- 
+
   ## Examples
 
     iex> QuantEx.Qop.x.n
@@ -255,18 +382,31 @@ defmodule QuantEx.Qop do
     [2, 2]
 
   """
-  @spec x(integer, Qit.circuit) :: Qit.circuit
-  @spec x(integer, U.unitary) :: Qit.circuit
-  @spec x(integer, Q.qubit) :: Qit.circuit
-  @spec x(integer) :: U.unitary
-  @spec x() :: U.unitary
-  def x(n, q), do: nil
-  def x(n), do: &x(n, &1)
-  def x, do: U.new([C.new(0), C.new(1), C.new(1), C.new(0)])
+  @spec x(non_neg_integer, Qit.circuit) :: Qit.circuit
+  @spec x(non_neg_integer, U.unitary) :: Qit.circuit
+  @spec x(non_neg_integer, Q.qubit) :: Qit.circuit
+  @spec x(non_neg_integer, C.real_complex) :: Qit.circuit
+  def x(a1, a2) when is_integer(a1) do
+    case { Qit.is_circuit(a2) } do
+      {true} -> nil #FIXME: should implement
+    end
+    case { U.is_unitary(a2) } do
+      {true} -> nil #FIXME: should implement
+    end
+    case { Q.is_qubit(a2) } do
+      {true} -> nil #FIXME: should implement
+    end
+    case { is_number(a2) or C.is_complex(a2) } do
+      {true} -> new(:coeff, opts: a2) * new(:x, a1)
+    end
+  end
+  @spec x(non_neg_integer) :: qop
+  def x(t \\ nil), do: new(:x, t)
+
 
   @doc """
   Y gate.
- 
+
   ## Examples
 
     iex> QuantEx.Qop.y.n
@@ -284,7 +424,7 @@ defmodule QuantEx.Qop do
 
   @doc """
   Z gate.
- 
+
   ## Examples
 
     iex> QuantEx.Qop.z.n
@@ -304,7 +444,7 @@ defmodule QuantEx.Qop do
 
   @doc """
   H(Hadamard) gate.
- 
+
   ## Examples
 
     iex> QuantEx.Qop.h.n
@@ -322,7 +462,7 @@ defmodule QuantEx.Qop do
 
   @doc """
   CX(CNOT) gate.
- 
+
   ## Examples
 
     iex> QuantEx.Qop.cx.n

@@ -37,8 +37,8 @@ defmodule Tensor.Qubit do
 
   use TBase, n: 0
 
-  @type t(list, sh, num) :: %Qubit{to_list: list, shape: sh, n: num}
-  @type t :: %Qubit{to_list: list, shape: list, n: non_neg_integer}
+  @type t(nn, arr, sh, nn) :: %Qubit{n: nn, to_list: arr, shape: sh}
+  @type t :: %Qubit{n: non_neg_integer, to_list: list, shape: list(non_neg_integer)}
   @opaque qubit :: %Qubit{}
 
   defimpl Inspect, for: Qubit do
@@ -48,7 +48,8 @@ defmodule Tensor.Qubit do
     end
   end
 
-  defguardp is_qubit(value) when value == %Qubit{}
+  @spec is_qubit(term) :: boolean
+  def is_qubit(s), do: is_map(s) && Map.has_key?(s, :__struct__) && s.__struct__ == Qubit
 
   @spec qubit?(term) :: boolean
   def qubit?(%Qubit{}), do: true
@@ -58,12 +59,12 @@ defmodule Tensor.Qubit do
   def new(list) when is_list(list) do
     flist = list |> List.flatten
     l = Kernel.length(flist)
-    %Qubit{to_list: flist, shape: [l], n: round(:math.log2(l))}
+    %Qubit{n: round(:math.log2(l)), to_list: flist, shape: [l]}
   end
 
   @spec new(integer, Tensor.tensor) :: qubit
   def new(num \\ nil, state \\ nil) do
-    %Qubit{to_list: state.to_list, shape: state.shape, n: num}
+    %Qubit{n: num, to_list: state.to_list, shape: state.shape}
   end
 
   @spec pure(list) :: qubit

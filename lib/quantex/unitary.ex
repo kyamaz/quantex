@@ -31,43 +31,55 @@ end
 defmodule Tensor.Unitary do
 
   alias Tensor.{Tensor, TBase, Unitary}
-  use TBase, [n: 0, t: [] ]
+  use TBase, n: 0
 
-  @type t(shape, list, num, target) :: %Unitary{n: num, t: target, shape: shape, to_list: list}
-  @type t :: %Unitary{n: non_neg_integer, t: list(non_neg_integer), to_list: list, shape: list(non_neg_integer)}
+  use QuantEx.Complex
+  alias Complex, as: C
+
+  @type t(nn, sh, arr) :: %Unitary{n: nn, shape: sh, to_list: arr}
+  @type t :: %Unitary{n: non_neg_integer, shape: list(non_neg_integer), to_list: list}
   @opaque unitary :: %Unitary{}
 
   defimpl Inspect, for: Unitary do
     def inspect(u, _opts) do
-      "Unitary[#{u.n} | #{u.t |> Enum.join(",")}]:" <>
+      "Unitary[#{u.n}]:" <>
       "Tensor[#{u.shape |> Enum.join("x")}] (#{inspect u.to_list})"
     end
   end
 
-  defguardp is_unitary(value) when value == %Unitary{}
+  @spec is_unitary(term) :: boolean
+  def is_unitary(s), do: is_map(s) && Map.has_key?(s, :__struct__) && s.__struct__ == Unitary
 
   @spec unitary?(term) :: boolean
   def unitary?(%Unitary{}), do: true
   def unitary?(_), do: false
 
-  @spec new(integer, list) :: unitary
-  def new(target, list) when is_list(list) and is_integer(target) do
-    flist = list |> List.flatten
+  @spec new(list) :: unitary
+  def new(lis) when is_list(lis) do
+    flist = lis |> List.flatten
     l = round(:math.sqrt(Kernel.length(flist)))
     nn = round(:math.log2(l))
-    case target do
-      nil -> 
-        %Unitary{to_list: flist, shape: [l, l], n: nn, t: [] }
-      _ ->
-        %Unitary{to_list: flist, shape: [l, l], n: nn, t: [target] }
-    end
+    %Unitary{n: nn, shape: [l, l], to_list: flist }
   end
 
-  @spec new(integer) :: unitary
-  def new(target) when is_integer(target), do: &new(target, &1)    # for curry
+#  @spec normalize(list) :: list
+#  def normalize(lis) do
+#    n = Enum.reduce(lis, 0, fn x, acc -> Complex.add(C.abs(x), acc) end)
+#    n = Complex.mul(n, n)
+#    lis |> Enum.map(fn x -> Complex.div(x, n) end)
+#  end
 
-  @spec new(list) :: unitary
-  def new(list) when is_list(list) do
-  end
+  @spec s_x() :: U.unitary
+  def s_x, do: new([C.new(0), C.new(1), C.new(1), C.new(0)])
+  @spec s_y() :: U.unitary
+  def s_y, do: new([C.new(0), C.new(0,-1), C.new(0,1), C.new(0)])
+  @spec s_z() :: U.unitary
+  def s_z, do: new([C.new(1), C.new(0), C.new(0), C.new(-1)])
+  @spec cx() :: U.unitary
+  def cx,  do: new([C.new(1), C.new(0), C.new(0), C.new(0),
+                    C.new(0), C.new(1), C.new(0), C.new(0),
+                    C.new(0), C.new(0), C.new(0), C.new(1),
+                    C.new(0), C.new(0), C.new(1), C.new(0)
+                   ])
 
 end
