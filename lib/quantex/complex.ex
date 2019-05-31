@@ -148,6 +148,7 @@ defmodule Complex do
   end
   def div(%Complex{re: r, im: i}, x), do: new(r/x, i/x)
   def div(a, b = %Complex{}), do: div(convert(a), b)
+  def div(a = %Complex{}, b), do: div(a, convert(b))
   def div(a, b), do: a/b
   def div(a), do: &div(a, &1)
   def div, do: &div(&1)

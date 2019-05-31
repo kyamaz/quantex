@@ -36,6 +36,7 @@ defmodule QuantEx.Qop do
   require Math
 
   import Kernel, except: [+: 2, -: 2, *: 2,
+                          abs: 1, div: 2,
                           ===: 2,
                           if: 2, unless: 2
                           ]

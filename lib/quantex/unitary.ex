@@ -30,8 +30,8 @@ end
 
 defmodule Tensor.Unitary do
 
-  alias Tensor.{Tensor, TBase, Unitary}
-  use TBase, n: 0
+  alias Tensor.{Tensor, Unitary}
+  use Tensor, n: 0
 
   use QuantEx.Complex
   alias Complex, as: C

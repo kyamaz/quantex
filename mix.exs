@@ -6,12 +6,12 @@ defmodule Quantex.Mixfile do
       app: :quantex,
       version: "0.0.5",
       elixir: "~> 1.5",
-      description: "Quantum computer system environment and libraries in Elixir", 
-      package: 
+      description: "Quantum computer system environment and libraries in Elixir",
+      package:
       [
-        maintainers: [ "piacere" ], 
-        licenses:    [ "Apache 2.0" ], 
-        links:       %{ "GitHub" => "https://github.com/piacere-ex/quantex" }, 
+        maintainers: [ "piacere" ],
+        licenses:    [ "Apache 2.0" ],
+        links:       %{ "GitHub" => "https://github.com/piacere-ex/quantex" },
       ],
       start_permanent: Mix.env == :prod,
       deps: deps()
@@ -28,11 +28,12 @@ defmodule Quantex.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      { :ex_doc,         "~> 0.19.3", only: :dev, runtime: false }, 
-      { :power_assert,   "~> 0.1.1",  only: :test }, 
-      { :mix_test_watch, "~> 0.5",    only: :dev, runtime: false }, 
-      { :earmark,        "~> 1.3",    override: true }, 
-      { :math,           "~> 0.3.0" }, 
+      { :ex_doc,         "~> 0.19.3", only: :dev, runtime: false },
+      { :power_assert,   "~> 0.1.1",  only: :test },
+      { :mix_test_watch, "~> 0.5",    only: :dev, runtime: false },
+      { :earmark,        "~> 1.3",    override: true },
+      { :math,           "~> 0.3.0" },
+      { :numbers,        "~> 5.0"},
     ]
   end
 end

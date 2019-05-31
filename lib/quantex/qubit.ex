@@ -33,9 +33,9 @@ defmodule Tensor.Qubit do
   use QuantEx.Complex
 
   alias Complex, as: C
-  alias Tensor.{Tensor, TBase, Qubit}
+  alias Tensor.{Tensor, Qubit}
 
-  use TBase, n: 0
+  use Tensor, n: 0
 
   @type t(nn, arr, sh, nn) :: %Qubit{n: nn, to_list: arr, shape: sh}
   @type t :: %Qubit{n: non_neg_integer, to_list: list, shape: list(non_neg_integer)}
