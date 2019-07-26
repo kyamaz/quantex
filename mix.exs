@@ -1,4 +1,4 @@
-defmodule Quantex.Mixfile do
+defmodule QuantEx.Mixfile do
   use Mix.Project
 
   def project do
@@ -33,6 +33,7 @@ defmodule Quantex.Mixfile do
       { :mix_test_watch, "~> 0.5",    only: :dev, runtime: false },
       { :earmark,        "~> 1.3",    override: true },
       { :math,           "~> 0.3.0" },
+      { :matrex,         "~> 0.6.7" },
       { :numbers,        "~> 5.0"},
     ]
   end

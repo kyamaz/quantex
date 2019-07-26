@@ -34,6 +34,7 @@ defmodule QuantEx.Qop do
   """
 
   require Math
+  alias Tensor.Unitary
 
   import Kernel, except: [+: 2, -: 2, *: 2,
                           abs: 1, div: 2,
@@ -63,15 +64,20 @@ defmodule QuantEx.Qop do
   def is_qop(s), do: is_map(s) && Map.has_key?(s, :__struct__) && s.__struct__ == Qop
 
   use QuantEx.Complex
-  use QuantEx.Qubit
-  use QuantEx.Unitary
-  use QuantEx.Tensor
   use QuantEx.Circuit
 
   alias Complex, as: C
   alias Qubit, as: Q
   alias Unitary, as: U
   alias Tensor, as: T
+
+  @spec add(Qop.t(), Qop.t()) :: Qop.t()
+  def add(a = %Qop{}, b = %Qop{}) do
+    %Qop{}
+  end
+  @spec add(U.unitary, U.unitary) :: U.unitary
+  def add(a = %Unitary{}, b = %Unitary{}), do: U.add(a, b)
+  def add(a, b), do: T.add(a, b)
 
   @doc """
 
@@ -97,8 +103,10 @@ defmodule QuantEx.Qop do
     3
 
   """
+  @spec U.unitary + U.unitary :: U.unitary
+  @spec T.tensor + T.tensor :: T.tensor
   @spec C.real_complex + C.real_complex :: C.real_complex
-  def left + right, do: C.add(left, right)
+  def left + right, do: add(left, right)
 
   @doc """
 
@@ -434,14 +442,6 @@ defmodule QuantEx.Qop do
     [2, 2]
 
   """
-  @spec z(integer, Q.qubit) :: Qit.circuit
-  @spec z(integer) :: U.unitary
-  @spec z() :: U.unitary
-  def z(n, q), do: nil
-  def z(n), do: &z(n, &1)
-  def z, do: U.new([C.new(1), C.new(0), C.new(0), C.new(-1)])
-
-  defp r1_2, do:  Complex.div(1, :math.sqrt(2))
 
   @doc """
   H(Hadamard) gate.
@@ -454,13 +454,6 @@ defmodule QuantEx.Qop do
     [2, 2]
 
   """
-  @spec h(integer, Q.qubit) :: Qit.circuit
-  @spec h(integer) :: U.unitary
-  @spec h() :: U.unitary
-  def h(n, q), do: nil
-  def h(n), do: &h(n, &1)
-  def h, do: U.new([C.new(r1_2()), C.new(r1_2()), C.new(r1_2()), C.new(-1*r1_2())])
-
   @doc """
   CX(CNOT) gate.
 
@@ -476,23 +469,6 @@ defmodule QuantEx.Qop do
     [4, 4]
 
   """
-  @spec cx(integer, Q.qubit) :: Qit.circuit
-  @spec cx(integer) :: U.unitary
-  @spec cx() :: U.unitary
-  def cx(n, q), do: nil
-  def cx(n), do: &cx(n, &1)
-  def cx, do: U.new([C.new(1), C.new(0), C.new(0), C.new(0),
-                     C.new(0), C.new(1), C.new(0), C.new(0),
-                     C.new(0), C.new(0), C.new(0), C.new(1),
-                     C.new(0), C.new(0), C.new(1), C.new(0)
-                    ])
-
-  @spec cnot(integer, Q.qubit) :: Qit.circuit
-  @spec cnot(integer) :: U.unitary
-  @spec cnot() :: U.unitary
-  def cnot(n, q), do: cx(n, q)
-  def cnot(n), do: cx(n)
-  def cnot, do: cx()
 
 # @doc """
 # Calculate tensor product.<br>

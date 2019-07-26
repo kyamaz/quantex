@@ -31,7 +31,6 @@ defmodule QuantEx.Qit do
   @moduledoc """
   """
 
-  use QuantEx.Unitary
   alias QuantEx.Qit
 
   defstruct n: 0, gates: []

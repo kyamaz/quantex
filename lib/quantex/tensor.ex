@@ -192,6 +192,7 @@ defmodule Tensor.Tensor do
   def add(a = %Tensor{}, b = %Tensor{}), do: add_tensor(a, b)
   def add(a = %Tensor{}, b), do: add_number(a, b)
   def add(a, b = %Tensor{}), do: add_number(a, b)
+  def add(a, b), do: C.add(a, b)
 
   @doc """
   """
@@ -298,5 +299,61 @@ defmodule Tensor.Tensor do
   end
   defp swap(list, a, b) when b < a, do: swap(list, b, a)
   defp swap(list, a, a), do: list
+
+#  @doc """
+#  """
+#  @spec normalize(list) :: list
+#  def normalize(lis) do
+#    n = Enum.reduce(lis, 0, fn x, acc -> Complex.add(C.abs(x), acc) end)
+#    n = Complex.mul(n, n)
+#    lis |> Enum.map(fn x -> Complex.div(x, n) end)
+#  end
+
+  @doc """
+    ## Examples
+        iex> Tensor.product([[1.0, 2.0], [3.0, 4.0]], [[[9.0, 8.0], [7.0, 6.0]], [[9.0, 8.0], [7.0, 6.0]]])
+      [
+        [
+          [[[9.0, 8.0], [7.0, 6.0]], [[9.0, 8.0], [7.0, 6.0]]],
+          [[[18.0, 16.0], [14.0, 12.0]], [[18.0, 16.0], [14.0, 12.0]]]
+        ],
+        [
+          [[[27.0, 24.0], [21.0, 18.0]], [[27.0, 24.0], [21.0, 18.0]]],
+          [[[36.0, 32.0], [28.0, 24.0]], [[36.0, 32.0], [28.0, 24.0]]]
+        ]
+      ]
+  """
+  def product(a, b) when is_list(a) do
+    Enum.map(a, & product(&1, b))
+  end
+  def product(a, b) when is_number(a) do
+    scalar_multiple_tensor(a, b)
+  end
+
+  @doc """
+    ## Examples
+        iex>  Tensor.scalar_multiple_tensor(2, [[1,2],[3,4]])
+      [[2,4],[6,8]]
+  """
+  def scalar_multiple_tensor(s, t) when is_list(t) do
+    Enum.map(t, & scalar_multiple_tensor(s, &1))
+  end
+  def scalar_multiple_tensor(s, t) when is_number(t) do
+    s * t
+  end
+  @doc """
+    ## extract an element of tesor
+      iex> Tensor.at([[[[9.0, 8.0], [7.0, 6.0]], [[18.0, 16.0], [14.0, 12.0]]],[[[27.0, 24.0], [21.0, 18.0]], [[36.0, 32.0], [28.0, 24.0]]]], [1, 1, 0, 0])
+      36.0
+  """
+  def at(t, index) do
+    at_sub(Enum.at(t, Enum.at(index, 0)), index, 0)
+  end
+  defp at_sub(t_sub, index, num) when is_list(hd(t_sub)) do
+    at_sub(Enum.at(t_sub, Enum.at(index, num + 1)), index, num + 1)
+  end
+  defp at_sub(t_sub, index, num) when is_number(hd(t_sub)) do
+    Enum.at(t_sub, Enum.at(index, num + 1))
+  end
 
 end

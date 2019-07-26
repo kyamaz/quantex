@@ -30,10 +30,12 @@ end
 
 defmodule Tensor.Unitary do
 
+  use QuantEx.Complex
   alias Tensor.{Tensor, Unitary}
+
   use Tensor, n: 0
 
-  use QuantEx.Complex
+  alias Tensor, as: T
   alias Complex, as: C
 
   @type t(nn, sh, arr) :: %Unitary{n: nn, shape: sh, to_list: arr}
@@ -62,24 +64,36 @@ defmodule Tensor.Unitary do
     %Unitary{n: nn, shape: [l, l], to_list: flist }
   end
 
-#  @spec normalize(list) :: list
-#  def normalize(lis) do
-#    n = Enum.reduce(lis, 0, fn x, acc -> Complex.add(C.abs(x), acc) end)
-#    n = Complex.mul(n, n)
-#    lis |> Enum.map(fn x -> Complex.div(x, n) end)
-#  end
+  @spec add(unitary, unitary) :: unitary
+  def add(a = %Unitary{}, b = %Unitary{}) do
+    if a.n == b.n do
+       x()
+    else
+       %Unitary{}
+    end
+  end
 
-  @spec s_x() :: U.unitary
-  def s_x, do: new([C.new(0), C.new(1), C.new(1), C.new(0)])
-  @spec s_y() :: U.unitary
-  def s_y, do: new([C.new(0), C.new(0,-1), C.new(0,1), C.new(0)])
-  @spec s_z() :: U.unitary
-  def s_z, do: new([C.new(1), C.new(0), C.new(0), C.new(-1)])
-  @spec cx() :: U.unitary
+  defp r1_2, do:  Complex.div(1, :math.sqrt(2))
+
+  @spec x() :: unitary
+  def x, do: new([C.new(0), C.new(1), C.new(1), C.new(0)])
+  @spec y() :: unitary
+  def y, do: new([C.new(0), C.new(0,-1), C.new(0,1), C.new(0)])
+  @spec z() :: unitary
+  def z, do: new([C.new(1), C.new(0), C.new(0), C.new(-1)])
+  @spec h() :: unitary
+  def h, do: new([C.new(r1_2()), C.new(r1_2()), C.new(r1_2()), C.new(-1*r1_2())])
+  @spec cx() :: unitary
   def cx,  do: new([C.new(1), C.new(0), C.new(0), C.new(0),
                     C.new(0), C.new(1), C.new(0), C.new(0),
                     C.new(0), C.new(0), C.new(0), C.new(1),
                     C.new(0), C.new(0), C.new(1), C.new(0)
+                   ])
+  @spec swap() :: unitary
+  def swap,  do: new([C.new(1), C.new(0), C.new(0), C.new(0),
+                    C.new(0), C.new(0), C.new(1), C.new(0),
+                    C.new(0), C.new(1), C.new(0), C.new(0),
+                    C.new(0), C.new(0), C.new(0), C.new(1)
                    ])
 
 end
